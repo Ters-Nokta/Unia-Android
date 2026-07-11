@@ -1,0 +1,35 @@
+name: Build APK
+
+# Her push'ta ve elle ("Run workflow") tetiklenir.
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu al
+        uses: actions/checkout@v4
+
+      - name: JDK 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: gradlew'e çalıştırma izni ver
+        run: chmod +x gradlew
+
+      - name: Debug APK derle
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: APK'yı yükle (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: unia-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
